@@ -1,6 +1,31 @@
+const jwt = require("jsonwebtoken");
+
 const User = require("../models/user");
 
 module.exports = {
+  sigin(req, res) {
+    if (req.body && req.body.email && req.body.password) {
+      const bEmail = req.body.email;
+      const bPassword = req.body.password;
+      User.findOne({ email: bEmail, password: bPassword }, (err, user) => {
+        if (err) res.status(500).send(err);
+        else if (user && user.password === bPassword) {
+          const token = jwt.sign(
+            {
+              id: user.id,
+              name: user.name,
+              email: user.email,
+            },
+            "Sen@crs",
+            { expiresIn: "1h" },
+          );
+          res.status(201).json({ tokenInfo: token });
+        } else res.status(401).json({ err: "Login failed" });
+      });
+    } else {
+      res.status(404).json("Not Found");
+    }
+  },
   getAll(req, res) {
     User.find({}, (err, user) => {
       if (err) {
@@ -58,7 +83,7 @@ module.exports = {
         }
         res.json(user);
         res.end();
-      },
+      }
     );
   },
   delete(req, res) {
