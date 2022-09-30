@@ -1,26 +1,37 @@
 const jwt = require("jsonwebtoken");
-
+const bcrypt = require("bcrypt");
 const User = require("../models/user");
+
+const saltRounds = 10;
 
 module.exports = {
   sigin(req, res) {
     if (req.body && req.body.email && req.body.password) {
       const bEmail = req.body.email;
       const bPassword = req.body.password;
-      User.findOne({ email: bEmail, password: bPassword }, (err, user) => {
+      User.findOne({ email: bEmail }, (err, user) => {
         if (err) res.status(500).send(err);
-        else if (user && user.password === bPassword) {
-          const token = jwt.sign(
-            {
-              id: user.id,
-              name: user.name,
-              email: user.email,
-            },
-            "Sen@crs",
-            { expiresIn: "1h" },
-          );
-          res.status(201).json({ tokenInfo: token });
-        } else res.status(401).json({ err: "Login failed" });
+        else if (user) {
+          bcrypt.compare(bPassword, user.password, (err1, result) => {
+            if (err1) {
+              res.status(500).send(err1);
+            }
+            if (result) {
+              const token = jwt.sign(
+                {
+                  id: user.id,
+                  name: user.name,
+                  email: user.email,
+                },
+                "Sen@crs",
+                { expiresIn: "1h" },
+              );
+              res.status(201).json({ tokenInfo: token });
+            }
+          });
+        } else {
+          res.status(401).json({ err: "Login failed" });
+        }
       });
     } else {
       res.status(404).json("Not Found");
@@ -66,9 +77,14 @@ module.exports = {
       password: req.body.password,
     });
 
-    p.save();
-
-    res.send("User created!").status(200);
+    bcrypt.genSalt(saltRounds, (err1, salt) => {
+      bcrypt.hash(p.password, salt, (err, hash) => {
+        if (err) res.status(500).send(err);
+        p.password = hash;
+        p.save();
+        res.send("User created!").status(200);
+      });
+    });
   },
   put(req, res) {
     User.findOneAndUpdate(
@@ -83,7 +99,7 @@ module.exports = {
         }
         res.json(user);
         res.end();
-      }
+      },
     );
   },
   delete(req, res) {
