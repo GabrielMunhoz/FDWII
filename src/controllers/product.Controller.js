@@ -15,12 +15,13 @@ module.exports = {
         res.send(err);
       }
       res.json(product);
-    });
+    }).populate("category");
   },
   post(req, res) {
     const p = new Product({
       name: req.body.name,
       price: req.body.price,
+      category: req.body.category,
     });
 
     p.save();
