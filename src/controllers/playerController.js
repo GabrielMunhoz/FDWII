@@ -82,6 +82,17 @@ module.exports = {
     bcrypt.genSalt(saltRounds, (err1, salt) => {
       bcrypt.hash(p.password, salt, (err, hash) => {
         if (err) res.status(500).send(err);
+        Player.findOne({ nickname: paramNickname }, (err, user) => {
+          if (err) {
+            res.send(err);
+          } else if (user) {
+            res.json(user);
+          } else {
+            res.status(404).json("Not Found");
+          }
+        });
+
+
         p.password = hash;
         p.save();
         res.send("Player created!").status(200);
