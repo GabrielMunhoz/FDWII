@@ -2,9 +2,9 @@ const express = require("express");
 
 const app = express();
 
-const productRouter = require("./routes/productRouter");
-const userRouter = require("./routes/userRouter");
-const categoryRouter = require("./routes/categoryRouter");
+const advertisementRouter = require("./routes/advertisementRouter");
+const playerRouter = require("./routes/playerRouter");
+const gameCategoryRouter = require("./routes/gameCategoryRouter");
 const loginRouter = require("./routes/loginRouter");
 const InterceptToken = require("./routes/InterceptToken");
 
@@ -15,8 +15,8 @@ app.use(express.json({ type: "application/vnd.api+json" }));
 
 app.use("/api/login", loginRouter);
 app.use(InterceptToken.verifyJWT);
-app.use("/api/categories", categoryRouter);
-app.use("/api/products", productRouter);
-app.use("/api/users", userRouter);
+app.use("/api/gameCategories", gameCategoryRouter);
+app.use("/api/advertisements", advertisementRouter);
+app.use("/api/players", playerRouter);
 
 module.exports = app;

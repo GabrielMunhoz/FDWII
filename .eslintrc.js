@@ -14,6 +14,7 @@ module.exports = {
   rules: {
     quotes: ["error", "double"],
     "linebreak-style": 0,
+    "consistent-return": false,
     // global: {"- ":"readonly" },
   },
 };

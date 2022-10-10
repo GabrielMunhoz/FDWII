@@ -1,6 +1,6 @@
 const router = require("express").Router();
 
-const UsersController = require("../controllers/userController");
+const UsersController = require("../controllers/playerController");
 
 router.post("/", UsersController.sigin);
 

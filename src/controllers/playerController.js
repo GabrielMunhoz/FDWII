@@ -1,15 +1,15 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const User = require("../models/user");
+const Player = require("../models/player");
 
 const saltRounds = 10;
 
 module.exports = {
   sigin(req, res) {
-    if (req.body && req.body.email && req.body.password) {
-      const bEmail = req.body.email;
+    if (req.body && req.body.nickname && req.body.password) {
+      const bNickname = req.body.nickname;
       const bPassword = req.body.password;
-      User.findOne({ email: bEmail }, (err, user) => {
+      Player.findOne({ nickname: bNickname }, (err, user) => {
         if (err) res.status(500).send(err);
         else if (user) {
           bcrypt.compare(bPassword, user.password, (err1, result) => {
@@ -38,7 +38,7 @@ module.exports = {
     }
   },
   getAll(req, res) {
-    User.find({}, (err, user) => {
+    Player.find({}, (err, user) => {
       if (err) {
         res.status(500).json({ error: err });
       } else {
@@ -47,9 +47,9 @@ module.exports = {
     });
   },
   getbySearch(req, res) {
-    if (req.query && req.query.email) {
-      const paramEmail = req.query.email;
-      User.findOne({ email: paramEmail }, (err, user) => {
+    if (req.query && req.query.nickname) {
+      const paramNickname = req.query.nickname;
+      Player.findOne({ nickname: paramNickname }, (err, user) => {
         if (err) {
           res.send(err);
         } else if (user) {
@@ -59,11 +59,11 @@ module.exports = {
         }
       });
     } else {
-      res.status(404).json("Email is required");
+      res.status(404).json("nickname is required");
     }
   },
   getById(req, res) {
-    User.findOne({ _id: req.params.id }, (err, user) => {
+    Player.findOne({ _id: req.params.id }, (err, user) => {
       if (err) {
         res.send(err);
       }
@@ -71,10 +71,12 @@ module.exports = {
     });
   },
   post(req, res) {
-    const p = new User({
+    const p = new Player({
       name: req.body.name,
       email: req.body.email,
       password: req.body.password,
+      nickname: req.body.nickname,
+      lastname: req.body.lastname,
     });
 
     bcrypt.genSalt(saltRounds, (err1, salt) => {
@@ -82,12 +84,12 @@ module.exports = {
         if (err) res.status(500).send(err);
         p.password = hash;
         p.save();
-        res.send("User created!").status(200);
+        res.send("Player created!").status(200);
       });
     });
   },
   put(req, res) {
-    User.findOneAndUpdate(
+    Player.findOneAndUpdate(
       { _id: req.params.id },
       req.body,
       { upsert: true },
@@ -97,13 +99,13 @@ module.exports = {
           res.end();
           return;
         }
-        res.json(user);
+        res.json(req.body);
         res.end();
       },
     );
   },
   delete(req, res) {
-    User.findByIdAndDelete({ _id: req.params.id }, (err, user) => {
+    Player.findByIdAndDelete({ _id: req.params.id }, (err, user) => {
       if (err) {
         res.status(500).json({ error: err.message });
         res.end();
