@@ -7,9 +7,12 @@ ac.grant("player")
  .createOwn("player")
  .updateOwn("player")
  .readAny("advertisements")
+ .createAny("advertisements")
  .readOwn("advertisements")
  .createOwn("advertisements")
  .updateOwn("advertisements")
+ .deleteOwn("advertisements")
+ .readAny("gameCategory")
  
  
 ac.grant("admin")
@@ -17,10 +20,14 @@ ac.grant("admin")
  .readAny("player")
  .updateAny("player")
  .deleteAny("player")
- .createAny("pets")
+ .createAny("advertisements")
  .readAny("advertisements")
  .updateAny("advertisements")
  .deleteAny("advertisements")
+ .createAny("gameCategory")
+ .readAny("gameCategory")
+ .updateAny("gameCategory")
+ .deleteAny("gameCategory")
 
 return ac;
 })();

@@ -1,11 +1,12 @@
 const router = require("express").Router();
 
 const gameCategoryController = require("../controllers/gameCategorycontroller");
+const { grantAccess } = require("../midleware/profileValidations");
 
-router.get("/", gameCategoryController.get);
-router.get("/:id", gameCategoryController.getById);
-router.post("/", gameCategoryController.post);
-router.put("/:id", gameCategoryController.put);
-router.delete("/:id", gameCategoryController.delete);
+router.get("/", grantAccess("readAny", "gameCategory"), gameCategoryController.get);
+router.get("/:id", grantAccess("readAny", "gameCategory"), gameCategoryController.getById);
+router.post("/", grantAccess("createAny", "gameCategory"), gameCategoryController.post);
+router.put("/:id", grantAccess("updateAny", "gameCategory"), gameCategoryController.put);
+router.delete("/:id", grantAccess("deleteAny", "gameCategory"), gameCategoryController.delete);
 
 module.exports = router;
