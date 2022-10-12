@@ -12,29 +12,27 @@ module.exports = {
       Player.findOne({ nickname: bNickname }, (err, user) => {
         if (err) res.status(500).send(err);
         else if (user) {
-          bcrypt.compare(bPassword, user.password, (err1, result) => {
-            if (err1) {
-              res.status(500).send(err1);
-            }
-            if (result) {
-              const token = jwt.sign(
-                {
-                  id: user.id,
-                  name: user.name,
-                  email: user.email,
-                },
-                "Sen@crs",
-                { expiresIn: "1h" },
-              );
-              res.status(201).json({ tokenInfo: token });
-            }
-          });
-        } else {
-          res.status(401).json({ err: "Login failed" });
+          let resultCrypt = bcrypt.compareSync(bPassword, user.password); 
+          if(resultCrypt){
+          const token = jwt.sign(
+            {
+              id: user.id,
+              name: user.name,
+              email: user.email,
+              role: user.role ? user.role : "player",
+            },
+            "Sen@crs",
+            { expiresIn: "1h" }
+          );
+          res.status(201).json({ tokenInfo: token });
+          }else {
+
+            res.status(401).json({ err: "Falha ao realizar o login" });
+          }
         }
       });
     } else {
-      res.status(404).json("Not Found");
+      res.status(404).json("Nao encontrado");
     }
   },
   getAll(req, res) {
@@ -55,11 +53,11 @@ module.exports = {
         } else if (user) {
           res.json(user);
         } else {
-          res.status(404).json("Not Found");
+          res.status(404).json("Nao encontrado");
         }
       });
     } else {
-      res.status(404).json("nickname is required");
+      res.status(404).json("nickname e necessario");
     }
   },
   getById(req, res) {
@@ -77,25 +75,23 @@ module.exports = {
       password: req.body.password,
       nickname: req.body.nickname,
       lastname: req.body.lastname,
+      role: req.body.role,
     });
 
     bcrypt.genSalt(saltRounds, (err1, salt) => {
       bcrypt.hash(p.password, salt, (err, hash) => {
         if (err) res.status(500).send(err);
-        Player.findOne({ nickname: paramNickname }, (err, user) => {
+        Player.findOne({ nickname: p.nickname }, (err, user) => {
           if (err) {
             res.send(err);
           } else if (user) {
-            res.json(user);
+            res.send("Jogador ja registrado!").status(200);
           } else {
-            res.status(404).json("Not Found");
+            p.password = hash;
+            p.save();
+            res.send("Jogador criado!").status(200);
           }
         });
-
-
-        p.password = hash;
-        p.save();
-        res.send("Player created!").status(200);
       });
     });
   },
@@ -112,7 +108,7 @@ module.exports = {
         }
         res.json(req.body);
         res.end();
-      },
+      }
     );
   },
   delete(req, res) {

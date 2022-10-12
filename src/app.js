@@ -15,8 +15,8 @@ app.use(express.json({ type: "application/vnd.api+json" }));
 
 app.use("/api/login", loginRouter);
 app.use(InterceptToken.verifyJWT);
+app.use("/api/players", playerRouter);
 app.use("/api/gameCategories", gameCategoryRouter);
 app.use("/api/advertisements", advertisementRouter);
-app.use("/api/players", playerRouter);
 
 module.exports = app;

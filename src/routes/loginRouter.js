@@ -1,7 +1,8 @@
 const router = require("express").Router();
 
-const UsersController = require("../controllers/playerController");
+const playerController = require("../controllers/playerController");
 
-router.post("/", UsersController.sigin);
+router.post("/", playerController.sigin);
+router.post("/Create/", playerController.post);
 
 module.exports = router;

@@ -9,6 +9,7 @@ const PlayerSchema = new Schema(
     password: String,
     nickname: String,
     lastname: String,
+    role: String,
   },
   {
     versionKey: false,
