@@ -8,26 +8,26 @@ exports.grantAccess = function (action, resource) {
       const token = req.headers["x-access-token"];
       if (!token)
         res
-          .status(401)
+          .status(400)
           .json({ auth: false, message: "Não foi fornecido token" });
 
       let role = '';
       jwt.verify(token, "Sen@crs", (err, decoded) => {
-        if (err) res.status(401).json({ auth: false, message: "Falha ao autenticar o token" });
+        if (err) res.status(400).json({ auth: false, message: "Falha ao autenticar o token" });
         role = decoded.role
       });
 
-      if (!role) res.status(401).json({ auth: false, message: "Falha ao verificar a permissão" });
+      if (!role) res.status(400).json({ auth: false, message: "Falha ao verificar a permissao" });
 
       const permission = roles.can(role)[action](resource);
       if (!permission.granted) {
-        return res.status(401).json({
-          error: "Você não tem permissão para executar está ação",
+        return res.status(403).json({
+          message: "Voce nao tem permissao para executar esta acao",
         });
       }
       next();
     } catch (error) {
-      res.status(401).json("Algo deu errado na role");
+      res.status(500).json({message: "Algo deu errado na role"});
     }
   };
 };

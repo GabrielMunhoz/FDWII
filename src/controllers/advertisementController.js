@@ -1,21 +1,36 @@
 const Advertisement = require("../models/advertisement");
+const advertisementValidations = require("../Validations/advertisementValidations");
 
 module.exports = {
   get(req, res) {
-    Advertisement.find({}, (err, products) => {
+    Advertisement.find({}, (err, advertisement) => {
       if (err) {
-        res.status(500).send(err);
+        console.log(err)
+        res.status(500).json({ message: "Falha ao deletar o usuario" });
+        return;
       }
-      res.json(products);
+      res.status(200).json(advertisement);
     });
   },
   getById(req, res) {
-    Advertisement.findOne({ _id: req.params.id }, (err, product) => {
+    Advertisement.findOne({ _id: req.params.id }, (err, advertisement) => {
       if (err) {
-        res.send(err);
+        console.log(err)
+        res.status(500).json({ message: "Falha ao obter o anuncio" });
+        return;
       }
-      res.json(product);
-    }).populate("playerHost").populate("gameCategory").populate("guests");
+      if(advertisement)
+      {
+        res.status(200).json(advertisement);
+      }
+      else
+      {
+        res.status(404).json({message: "Nao encontrado"});
+      }
+    })
+      .populate("playerHost")
+      .populate("gameCategory")
+      .populate("guests");
   },
   post(req, res) {
     const newAdvertisement = new Advertisement({
@@ -24,36 +39,46 @@ module.exports = {
       isActive: true,
       playerHost: req.body.playerHost,
     });
-
-    newAdvertisement.save();
-
-    res.send("Anuncio inserido!").status(200);
+    let validations =
+      advertisementValidations.validateAdvertisement(newAdvertisement);
+    if (validations) {
+      newAdvertisement.save().then(
+        suc => {
+          res.status(201).json({ message: "anuncio criado com sucesso" });
+        },
+        err => {
+          console.log(err);
+          return res.status(400).json({ message: "Falha ao salvar o anuncio" });
+        }
+      );
+    } else {
+      res.status(400).json(validations);
+    }
   },
   put(req, res) {
     Advertisement.findOneAndUpdate(
       { _id: req.params.id },
       req.body,
       { upsert: true },
-      (err, product) => {
+      (err, advertisement) => {
         if (err) {
-          res.status(500).json({ error: err.message });
-          res.end();
-          return;
+          console.log(err)
+          res.status(500).json({ message: "Falha ao atualizar o anuncio" });
         }
-        res.json(product);
-        res.end();
-      },
+        res.status(200).json(advertisement);
+      }
     );
   },
   delete(req, res) {
-    Advertisement.find({ _id: req.params.id }).remove((err, product) => {
+    Advertisement.find({ _id: req.params.id }).remove((err, advertisement) => {
       if (err) {
-        res.status(500).json({ error: err.message });
-        res.end();
+        console.log(err)
+        res.status(500).json({ message: "Falha ao deletar o anuncio" });
         return;
       }
-      res.json(product);
-      res.end();
+      if(advertisement){
+        res.status(200).send({ message: "Anuncio excluido!" });
+      }
     });
   },
 };

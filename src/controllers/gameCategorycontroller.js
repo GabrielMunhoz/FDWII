@@ -5,17 +5,21 @@ module.exports = {
   get(req, res) {
     GameCategory.find({}, (err, categorys) => {
       if (err) {
-        res.status(500).send(err);
+        console.log(err)
+        res.status(500).json({ message: "Falha ao obter as categorias de jogos" });
+        return;
       }
-      res.json(categorys);
+      res.status(200).json(categorys);
     });
   },
   getById(req, res) {
     GameCategory.findOne({ _id: req.params.id }, (err, category) => {
       if (err) {
-        res.send(err);
+        console.log(err)
+        res.status(500).json({ message: "Falha ao obter a categoria de jogo" });
+        return;
       }
-      res.json(category);
+      res.status(201).json(category);
     });
   },
   post(req, res) {
@@ -24,21 +28,27 @@ module.exports = {
       boxArtUrl: req.body.boxArtUrl,
     });
 
-    if (!GameCategoryValidation.validateGameCategory(newGameCategory)) return res.status(400).send("Atributos obrigatórios não informados");
+    let validation = GameCategoryValidation.validateGameCategory(newGameCategory);
+
+    if (validation > 0) return res.status(400).send(validation);
 
     GameCategory.findOne({ name: newGameCategory.name }, (err, gameCategory) => {
       if (err) {
-        res.status(500).send(err);
+        console.log(err)
+        res.status(500).json({ message: "Falha ao obter a categoria de jogo" });
+        return;
       } else if (gameCategory) {
-        res.status(400).send("jogo já existente!");
+        res.status(400).send({message: "Categoria de jogo já existente!"});
       } else {
         newGameCategory.save();
-        res.status(200).send("Jogo inserido!");
+        res.status(201).send({message: "Categoria de jogo inserido!"});
       }
     });
   },
   put(req, res) {
-    if (!GameCategoryValidation.validateGameCategory(req.body)) return res.status(400).send("Atributos obrigatórios não informados");
+    let validation = GameCategoryValidation.validateGameCategory(req.body);
+
+    if (validation > 0) return res.status(400).send(validation);
 
     GameCategory.findOneAndUpdate(
       { _id: req.params.id },
@@ -46,21 +56,27 @@ module.exports = {
       { upsert: true },
       (err, category) => {
         if (err) {
-          return res.status(500).json({ error: err.message });
+          console.log(err)
+          res.status(500).json({ message: "Falha ao atualizar a categoria de jogo" });
+          return;
         }
-        return res.json(category);
+        return res.status(200).json(category);
       },
     );
   },
   delete(req, res) {
     GameCategory.find({ _id: req.params.id }).remove((err, category) => {
       if (err) {
-        res.status(500).json({ error: err.message });
-        res.end();
+        console.log(err)
+        res.status(500).json({ message: "Falha ao deletar a categoria de jogo" });
         return;
       }
-      res.json(category);
-      res.end();
+      if(category){
+        res.status(200).json({message: "Categoria de jogo deletada!"});
+      }
+      else{
+        res.status(500).json({message : "Erro ao deletar a categoria de jogo"});
+      }
     });
   },
 };

@@ -1,6 +1,10 @@
 module.exports = {
   validateGameCategory(gameCategory) {
-    if (gameCategory.name && gameCategory.boxArtUrl) return true;
-    return false;
+    let validationMessage = []; 
+    if(!gameCategory.name) validationMessage.push({message : "Nome da categoria de jogo e obrigatorio"});
+    if(!gameCategory.boxArtUrl) validationMessage.push({message : "Imagem da categoria de jogo e obrigatorio"});
+    
+
+    return validationMessage;
   },
 };
