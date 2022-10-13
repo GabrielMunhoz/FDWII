@@ -41,7 +41,7 @@ module.exports = {
     });
     let validations =
       advertisementValidations.validateAdvertisement(newAdvertisement);
-    if (validations) {
+    if (validations.length <=0 ) {
       newAdvertisement.save().then(
         suc => {
           res.status(201).json({ message: "anuncio criado com sucesso" });
@@ -56,6 +56,9 @@ module.exports = {
     }
   },
   put(req, res) {
+    let validation = advertisementValidations.validateAdvertisement(req.body);
+    if(validation.length > 0) return res.status(400).json(validations);
+
     Advertisement.findOneAndUpdate(
       { _id: req.params.id },
       req.body,

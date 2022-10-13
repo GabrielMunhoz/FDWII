@@ -28,7 +28,7 @@ module.exports = {
                 "Sen@crs",
                 { expiresIn: "1h" }
               );
-              res.status(201).json({ tokenInfo: token });
+              res.status(200).json({ tokenInfo: token });
             } else {
               res.status(401).json({ message: "Falha ao realizar o login" });
             }
@@ -49,7 +49,8 @@ module.exports = {
   getAll(req, res) {
     Player.find({}, (err, user) => {
       if (err) {
-        res.status(500).json({ error: err });
+        console.log(err);
+        res.status(500)({message: "Erro ao consultar o jogador"});
       } else {
         res.json(user);
       }
